@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const { connectDB } = require('./database');
-const userRoutes = require('./routes/userRoutes');
 require('dotenv').config(); // Load environment variables from .env file
 
 // Middleware to parse incoming JSON data
@@ -20,5 +19,10 @@ connectDB().then(() => {
   process.exit(1); // Exit the process on connection error
 });
 
-// Use user routes
-app.use('/users', userRoutes);
+// Use the user routes
+const userRoutes = require("./routes/userRoutes");
+app.use("/users", userRoutes);
+
+// Use the movie routes
+const movieRoutes = require("./routes/movieRoutes");
+app.use("/movies", movieRoutes);

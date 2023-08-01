@@ -1,8 +1,13 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const { getDB } = require("../database");
 const bcrypt = require("bcrypt");
 const { validateUser } = require("../utils/regularUserSchema");
 const thirdPartyUserSchema = require("../utils/thirdPartyUserSchema");
+const { ObjectId } = require("mongodb");
+
+
+const jwtSecret = process.env.JWT_SECRET;
 
 // Get all users
 async function getAllUsers(req, res) {
@@ -149,7 +154,9 @@ async function deleteUser(req, res) {
 
 // Function to handle user login and issue JWT token
 async function loginUser(req, res) {
+  console.log("email, password")
   const { email, password } = req.body;
+
 
   // Find user in the database
   const db = getDB();
