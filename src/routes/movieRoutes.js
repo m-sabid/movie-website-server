@@ -1,21 +1,23 @@
 const express = require("express");
 const router = express.Router();
 const movieController = require("../controllers/movieController");
-const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
+// const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
+
+// TODO: Add auth and admin
 
 // GET all movies
-router.get("/", authenticateToken, movieController.getAllMovies);
+router.get("/", movieController.getAllMovies);
 
 // GET a movie by ID
-router.get("/:id", authenticateToken, movieController.getMovieById);
+router.get("/:id", movieController.getMovieById);
 
 // POST create a new movie
-router.post("/", authenticateToken, isAdmin, movieController.createMovie);
+router.post("/", movieController.createMovie);
 
 // PUT update a movie by ID
-router.put("/:id", authenticateToken, isAdmin, movieController.updateMovie);
+router.put("/:id", movieController.updateMovie);
 
 // DELETE a movie by ID
-router.delete("/:id", authenticateToken, isAdmin, movieController.deleteMovie);
+router.delete("/:id", movieController.deleteMovie);
 
 module.exports = router;

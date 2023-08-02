@@ -6,6 +6,7 @@ const movieSchema = Joi.object({
   directedBy: Joi.string().required(),
   releaseDate: Joi.date().iso().required(),
   language: Joi.array().items(Joi.string().required()).required(),
+  genre: Joi.array().items(Joi.string().required()).required(),
   industry: Joi.string().required(),
   country: Joi.string().required(),
   starCast: Joi.string().required(),
