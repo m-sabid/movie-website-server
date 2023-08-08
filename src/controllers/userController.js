@@ -154,7 +154,7 @@ async function deleteUser(req, res) {
 
 // Function to handle user login and issue JWT token
 async function loginUser(req, res) {
-  console.log("email, password")
+  // console.log("email, password")
   const { email, password } = req.body;
 
 

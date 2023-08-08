@@ -7,7 +7,7 @@ const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
 router.post("/login", userController.loginUser);
 
 // GET all users
-router.get("/", authenticateToken, isAdmin, userController.getAllUsers);
+router.get("/", userController.getAllUsers);
 
 // GET a user by ID
 router.get("/:id", authenticateToken, isAdmin, userController.getUserById);

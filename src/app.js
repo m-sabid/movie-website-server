@@ -2,12 +2,20 @@ const express = require("express");
 const app = express();
 const { connectDB } = require("./database");
 require("dotenv").config(); // Load environment variables from .env file
-const cors = require('cors')
+const cors = require("cors");
+
+const corsOptions = {
+  origin: "*",
+  credentials: true,
+  optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+
+
+
 
 // Middleware to parse incoming JSON data
 app.use(express.json());
-
-app.use(cors())
 
 // Connect to MongoDB using the MONGO_URI from the .env file
 connectDB()
