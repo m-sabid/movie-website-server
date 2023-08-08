@@ -38,3 +38,7 @@ app.use("/users", userRoutes);
 // Use the movie routes
 const movieRoutes = require("./routes/movieRoutes");
 app.use("/movies", movieRoutes);
+
+// Use the movie routes
+const genreRouter = require("./routes/genreRouter");
+app.use("/genre", genreRouter);
