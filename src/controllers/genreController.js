@@ -19,6 +19,17 @@ async function createGenre(req, res) {
     const db = getDB();
     const newGenre = req.body;
 
+    // Check if the genreName already exists
+    const existingGenre = await db
+      .collection("genre")
+      .findOne({ genreName: newGenre.genreName.toLowerCase() });
+    if (existingGenre) {
+      console.error("Genre name already exists");
+      return res
+        .status(400)
+        .json({ success: false, message: "Genre name already exists" });
+    }
+
     const result = await db.collection("genre").insertOne(newGenre);
     if (result.acknowledged) {
       return res.json({ success: true, message: "Genre creation successful" });
@@ -36,9 +47,12 @@ async function updateGenre(req, res) {
     const genreId = req.params.id;
     const updatedGenre = req.body;
 
+    // Exclude the _id field from the update operation
+    delete updatedGenre._id;
+
     const result = await db
       .collection("genre")
-      .updateOne({ _id: ObjectId(genreId) }, { $set: updateGenre });
+      .updateOne({ _id: new ObjectId(genreId) }, { $set: updatedGenre });
 
     if (result.modifiedCount > 0) {
       res.json({ message: "Genre updated successfully" });
@@ -59,7 +73,7 @@ async function deleteGenre(req, res) {
 
     const result = await db
       .collection("genre")
-      .deleteOne({ _id: ObjectId(genreId) });
+      .deleteOne({ _id: new ObjectId(genreId) });
 
     if (result.deletedCount > 0) {
       res.json({ message: "Genre deleted successfully" });

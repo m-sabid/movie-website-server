@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { connectDB } = require("./database");
+const { connectDB } = require("./src/database");
 require("dotenv").config(); // Load environment variables from .env file
 const cors = require("cors");
 
@@ -32,13 +32,22 @@ connectDB()
   });
 
 // Use the user routes
-const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./src/routes/userRoutes");
 app.use("/users", userRoutes);
 
 // Use the movie routes
-const movieRoutes = require("./routes/movieRoutes");
+const movieRoutes = require("./src/routes/movieRoutes");
 app.use("/movies", movieRoutes);
 
-// Use the movie routes
-const genreRouter = require("./routes/genreRouter");
+// Use the genre routes
+const genreRouter = require("./src/routes/genreRouter");
 app.use("/genre", genreRouter);
+
+// Use the industry routes
+const industryRouter = require("./src/routes/industryRouter");
+app.use("/industry", industryRouter);
+
+
+// Use the language routes
+const languageRouter = require("./src/routes/languageRouter");
+app.use("/language", languageRouter);
