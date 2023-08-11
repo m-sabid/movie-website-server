@@ -24,7 +24,7 @@ async function createMovie(req, res) {
     posterFormData.append("image", newMovie.poster);
 
     const imageUploadToken = "01f1da67b6a17d75237a16f95e14bfed";
-    const imageHostingUrl = `https://api.imgbb.com/1/upload?expiration=600&key=${imageUploadToken}`;
+    const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageUploadToken}`;
 
     const posterImageBbResponse = await fetch(imageHostingUrl, {
       method: "POST",
@@ -121,7 +121,7 @@ async function deleteMovie(req, res) {
     const movieId = req.params.id;
     const result = await db
       .collection("movies")
-      .deleteOne({ _id: ObjectId(movieId) });
+      .deleteOne({ _id: new ObjectId(movieId) });
     if (result.deletedCount > 0) {
       res.json({ message: "Movie deleted successfully" });
     } else {
