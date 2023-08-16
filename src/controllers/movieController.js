@@ -64,6 +64,9 @@ async function createMovie(req, res) {
     newMovie.poster = posterImageUrl;
     newMovie.screenShort = screenShortImageUrl;
 
+    // Add the "status" field with default value "draft"
+    newMovie.status = "draft";
+
     // Insert the new movie with the ImageBB URLs into the database
     const result = await db.collection("movies").insertOne(newMovie);
     if (result.acknowledged) {
