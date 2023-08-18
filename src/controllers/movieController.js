@@ -85,7 +85,7 @@ async function getMovieById(req, res) {
     const movieId = req.params.id;
     const movie = await db
       .collection("movies")
-      .findOne({ _id: ObjectId(movieId) });
+      .findOne({ _id: new ObjectId(movieId) });
     if (movie) {
       res.json(movie);
     } else {
