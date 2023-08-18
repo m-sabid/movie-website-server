@@ -105,7 +105,7 @@ async function updateMovie(req, res) {
     const updatedMovie = req.body;
     const result = await db
       .collection("movies")
-      .updateOne({ _id: ObjectId(movieId) }, { $set: updatedMovie });
+      .updateOne({ _id: new ObjectId(movieId) }, { $set: updatedMovie });
     if (result.modifiedCount > 0) {
       res.json({ message: "Movie updated successfully" });
     } else {
