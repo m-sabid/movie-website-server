@@ -14,8 +14,8 @@ router.get("/:id", movieController.getMovieById);
 // POST create a new movie
 router.post("/", movieController.createMovie);
 
-// PUT update a movie by ID
-router.put("/:id", movieController.updateMovie);
+// PATCH update a movie by ID
+router.patch("/:id", movieController.updateMovie);
 
 // DELETE a movie by ID
 router.delete("/:id", movieController.deleteMovie);

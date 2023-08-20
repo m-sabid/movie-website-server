@@ -99,13 +99,84 @@ async function getMovieById(req, res) {
 
 // Function to update a movie by ID
 async function updateMovie(req, res) {
+  console.log(req.body)
   try {
     const db = getDB();
     const movieId = req.params.id;
     const updatedMovie = req.body;
+
+
+    // Upload new poster image to ImageBB if provided
+    if (req.files && req.files.poster) {
+      const posterImage = req.files.poster;
+      const posterFormData = new FormData();
+      posterFormData.append("image", posterImage.data);
+
+      const imageUploadToken = "01f1da67b6a17d75237a16f95e14bfed";
+      const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageUploadToken}`;
+
+      const posterImageBbResponse = await fetch(imageHostingUrl, {
+        method: "POST",
+        body: posterFormData,
+      });
+
+      const posterImageBbData = await posterImageBbResponse.json();
+
+      if (posterImageBbData.status !== 200) {
+        return res
+          .status(500)
+          .json({ error: "Poster image upload to ImageBB failed" });
+      }
+
+      const posterImageUrl = posterImageBbData.data.url;
+      updatedMovie.poster = posterImageUrl;
+    }
+
+    // Upload new screenShort image to ImageBB if provided
+    if (req.files && req.files.screenShort) {
+      const screenShortImage = req.files.screenShort;
+      const screenShortFormData = new FormData();
+      screenShortFormData.append("image", screenShortImage.data);
+
+      const imageUploadToken = "01f1da67b6a17d75237a16f95e14bfed";
+      const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageUploadToken}`;
+
+      const screenShortImageBbResponse = await fetch(imageHostingUrl, {
+        method: "POST",
+        body: screenShortFormData,
+      });
+
+      const screenShortImageBbData = await screenShortImageBbResponse.json();
+
+      if (screenShortImageBbData.status !== 200) {
+        return res
+          .status(500)
+          .json({ error: "ScreenShort image upload to ImageBB failed" });
+      }
+
+      const screenShortImageUrl = screenShortImageBbData.data.url;
+      updatedMovie.screenShort = screenShortImageUrl;
+    }
+
+    // Exclude the _id field from the update operation
+    delete updatedMovie._id;
+
+    // Update only the fields that are present in the request body
+    const updateFields = {};
+    for (const key in updatedMovie) {
+      if (updatedMovie.hasOwnProperty(key)) {
+        updateFields[key] = updatedMovie[key];
+      }
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ error: "No valid fields to update" });
+    }
+
     const result = await db
       .collection("movies")
-      .updateOne({ _id: new ObjectId(movieId) }, { $set: updatedMovie });
+      .updateOne({ _id: new ObjectId(movieId) }, { $set: updateFields });
+
     if (result.modifiedCount > 0) {
       res.json({ message: "Movie updated successfully" });
     } else {
@@ -116,6 +187,8 @@ async function updateMovie(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
 
 // Function to delete a movie by ID
 async function deleteMovie(req, res) {
