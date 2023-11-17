@@ -169,7 +169,7 @@ async function loginUser(req, res) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ email: user.email, role: user.role }, jwtSecret);
+    const token = jwt.sign({ email: user.email, role: user.role, profilePicture: user.profilePicture }, jwtSecret);
 
     // Send the token in the response
     res.json({ token });
