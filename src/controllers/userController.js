@@ -6,7 +6,6 @@ const { validateUser } = require("../utils/regularUserSchema");
 const thirdPartyUserSchema = require("../utils/thirdPartyUserSchema");
 const { ObjectId } = require("mongodb");
 
-
 const jwtSecret = process.env.JWT_SECRET;
 
 // Get all users
@@ -43,6 +42,9 @@ async function createUserWithPassword(req, res) {
         .status(409)
         .json({ error: "User with the same email already exists" });
     }
+
+    // Set default value for the role field to 'user' if not present
+    newUser.role = newUser.role || "user";
 
     // Hash the password before saving it in the database
     const hashedPassword = await bcrypt.hash(newUser.password, 10);
@@ -154,24 +156,27 @@ async function deleteUser(req, res) {
 
 // Function to handle user login and issue JWT token
 async function loginUser(req, res) {
-  // console.log("email, password")
   const { email, password } = req.body;
 
+  try {
+    // Find user in the database
+    const db = getDB();
+    const user = await db.collection("users").findOne({ email });
 
-  // Find user in the database
-  const db = getDB();
-  const user = await db.collection("users").findOne({ email });
+    // Check if user exists and password matches
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
 
-  // Check if user exists and password matches
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ error: "Invalid email or password" });
+    // Generate JWT token
+    const token = jwt.sign({ email: user.email, role: user.role }, jwtSecret);
+
+    // Send the token in the response
+    res.json({ token });
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-
-  // Generate JWT token
-  const token = jwt.sign({ email: user.email, role: user.role }, jwtSecret);
-
-  // Send the token in the response
-  res.json({ token });
 }
 
 module.exports = {
