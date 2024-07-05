@@ -25,74 +25,91 @@ async function getAllUsers(req, res) {
 async function createUserWithPassword(req, res) {
   try {
     const db = getDB();
+    if (!db) {
+      throw new Error("Failed to connect to the database");
+    }
+
     const newUser = req.body;
 
     // Validate newUser against the user schema using the imported validateUser function
-    const validationErrors = validateUser(newUser);
-    if (validationErrors) {
-      return res.status(400).json({ errors: validationErrors });
+    const { errors, value: validatedUser } = validateUser(newUser);
+    if (errors) {
+      return res.status(400).json({ errors });
     }
 
     // Check if the user with the same email already exists in the database
-    const existingUser = await db
-      .collection("users")
-      .findOne({ email: newUser.email });
+    const existingUser = await db.collection("users").findOne({ email: validatedUser.email });
     if (existingUser) {
-      return res
-        .status(409)
-        .json({ error: "User with the same email already exists" });
+      return res.status(409).json({ error: "User with the same email already exists" });
     }
 
     // Set default value for the role field to 'user' if not present
-    newUser.role = newUser.role || "user";
+    validatedUser.role = validatedUser.role || "user";
+
+    // Check if the password is provided
+    if (!validatedUser.password) {
+      throw new Error("Password is required");
+    }
 
     // Hash the password before saving it in the database
-    const hashedPassword = await bcrypt.hash(newUser.password, 10);
+    const hashedPassword = await bcrypt.hash(validatedUser.password, 10);
+    console.log("Hashed password:", hashedPassword); // Log hashed password for debugging
 
     // Replace the plain password with the hashed password in the newUser object
-    newUser.password = hashedPassword;
+    validatedUser.password = hashedPassword;
 
     // Insert the new user into the database
-    const result = await db.collection("users").insertOne(newUser);
+    const result = await db.collection("users").insertOne(validatedUser);
     if (result.acknowledged) {
       return res.json({ success: true, message: "User creation successful" });
+    } else {
+      throw new Error("User creation failed");
     }
   } catch (err) {
     console.error("Error creating user:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 }
 
 // Function to handle third-party user sign-up (without password)
 async function createUserWithoutPassword(req, res) {
   try {
+    const db = getDB();
+    if (!db) {
+      throw new Error("Failed to connect to the database");
+    }
+
     const newUser = req.body;
 
     // Validate newUser against the thirdPartyUserSchema
-    const validation = thirdPartyUserSchema.validate(newUser);
-    if (validation.error) {
-      return res.status(400).json({ errors: validation.error.details });
+    const { error, value: validatedUser } = thirdPartyUserSchema.validate(newUser);
+    if (error) {
+      return res.status(400).json({ errors: error.details });
     }
 
     // Check if the user with the same email already exists in the database
-    const existingUser = await db
-      .collection("users")
-      .findOne({ email: newUser.email });
+    const existingUser = await db.collection("users").findOne({ email: validatedUser.email });
     if (existingUser) {
-      return res
-        .status(409)
-        .json({ error: "User with the same email already exists" });
+      return res.status(409).json({ error: "User with the same email already exists" });
     }
 
+    // Set default value for the role field to 'user' if not present
+    validatedUser.role = validatedUser.role || "user";
+
+    // Remove password and confirmPassword fields if they exist
+    delete validatedUser.password;
+    delete validatedUser.confirmPassword;
+
     // Proceed with third-party user sign-up process and save to database
-    const db = getDB();
-    const result = await db.collection("users").insertOne(newUser);
+    const result = await db.collection("users").insertOne(validatedUser);
     if (result.acknowledged) {
       return res.json({ success: true, message: "User creation successful" });
+    } else {
+      throw new Error("User creation failed");
     }
   } catch (err) {
     console.error("Error creating user:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 }
 
@@ -169,7 +186,14 @@ async function loginUser(req, res) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ email: user.email, role: user.role, profilePicture: user.profilePicture }, jwtSecret);
+    const token = jwt.sign(
+      {
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture,
+      },
+      jwtSecret
+    );
 
     // Send the token in the response
     res.json({ token });

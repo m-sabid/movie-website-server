@@ -8,23 +8,23 @@ const userSchema = Joi.object({
   age: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/),
   profilePicture: Joi.string(),
   gender: Joi.string(),
-  role: Joi.string().default('user'),
+  role: Joi.string().default('user'), // Default role set to 'user'
   password: Joi.string(),
   confirmPassword: Joi.string().valid(Joi.ref('password'))
 }).with('password', 'confirmPassword');
 
 // Function to validate user data against the user schema
 function validateUser(newUser) {
-  const { error } = userSchema.validate(newUser, { abortEarly: false });
+  const { error, value } = userSchema.validate(newUser, { abortEarly: false });
   if (error) {
     const errorMessage = error.details.map((errorItem) => errorItem.message);
-    return errorMessage;
+    return { errors: errorMessage };
   }
 
   // Remove the confirmPassword field before saving in the database
-  delete newUser.confirmPassword;
+  delete value.confirmPassword;
 
-  return null; // Return null if validation passes (no errors)
+  return { value }; // Return validated user data
 }
 
 module.exports = { validateUser };

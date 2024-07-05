@@ -13,9 +13,9 @@ router.get("/", userController.getAllUsers);
 router.get("/:id", authenticateToken, isAdmin, userController.getUserById);
 
 // POST create a new user
-router.post("/", userController.createUserWithPassword);
+router.post("/sing_up", userController.createUserWithPassword);
 // POST create a new user
-router.post("/", userController.createUserWithoutPassword);
+router.post("/singUp", userController.createUserWithoutPassword);
 
 // PUT update a user by ID
 router.put("/:id", authenticateToken, userController.updateUser);
