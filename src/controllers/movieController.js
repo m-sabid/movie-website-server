@@ -99,12 +99,11 @@ async function getMovieById(req, res) {
 
 // Function to update a movie by ID
 async function updateMovie(req, res) {
-  console.log(req.body)
+  console.log(req.body);
   try {
     const db = getDB();
     const movieId = req.params.id;
     const updatedMovie = req.body;
-
 
     // Upload new poster image to ImageBB if provided
     if (req.files && req.files.poster) {
@@ -188,8 +187,6 @@ async function updateMovie(req, res) {
   }
 }
 
-
-
 // Function to delete a movie by ID
 async function deleteMovie(req, res) {
   try {
@@ -210,6 +207,7 @@ async function deleteMovie(req, res) {
 }
 
 module.exports = {
+
   getAllMovies,
   createMovie,
   getMovieById,

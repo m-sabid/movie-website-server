@@ -28,10 +28,10 @@ connectDB()
     process.exit(1); // Exit the process on connection error
   });
 
-// Use the user routes
-const userRoutes = require("./src/routes/userRoutes");
-app.use("/users", userRoutes);
-
+// Use authentication routes
+const authRoutes = require("./src/routes/authRoutes");
+app.use("/api/auth", authRoutes);
+  
 // Use the movie routes
 const movieRoutes = require("./src/routes/movieRoutes");
 app.use("/movies", movieRoutes);

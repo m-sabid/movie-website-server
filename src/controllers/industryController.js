@@ -53,6 +53,8 @@ async function updateIndustry(req, res) {
     // Exclude the _id field from the update operation
     delete updatedIndustry._id;
 
+    console.log(updatedIndustry);
+
     const result = await db
       .collection("industry")
       .updateOne({ _id: new ObjectId(industryId) }, { $set: updatedIndustry });
