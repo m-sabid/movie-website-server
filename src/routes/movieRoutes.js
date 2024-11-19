@@ -1,24 +1,40 @@
 const express = require("express");
 const router = express.Router();
 const movieController = require("../controllers/movieController");
-// const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
 
-// GET all movies (requires authentication)
+// Route to get all movies with pagination and category filtering
 router.get("/", movieController.getAllMovies);
 
-// GET a movie by ID (requires authentication)
+// 
+// Search
+router.get("/search", movieController.searchMovies);
+
+//
+//
+// Route to get all unique industries
+router.get("/industries", movieController.getIndustries);
+
+// Route to get recent movies (filtered by last 5 years)
+router.get("/recent", movieController.getSuggestedMovies);
+
+// Route to get for you movies (filtered by last 5 years)
+router.get("/forYou", movieController.getMoviesForYou);
+
+// Route to get most watched movies (filtered by last 5 years)
+router.get("/most-watched", movieController.getRecentMovies);
+
+// Route to get a movie by ID
 router.get("/:id", movieController.getMovieById);
 
-// POST create a new movie (requires authentication and admin)
+// Route to create a new movie
 router.post("/", movieController.createMovie);
-// router.post("/", authenticateToken, isAdmin, movieController.createMovie);
 
-// PATCH update a movie by ID (requires authentication and admin)
+// Route to update a movie by ID
 router.patch("/:id", movieController.updateMovie);
-// router.patch("/:id", authenticateToken, isAdmin, movieController.updateMovie);
 
-// DELETE a movie by ID (requires authentication and admin)
+// Route to delete a movie by ID
 router.delete("/:id", movieController.deleteMovie);
-// router.delete("/:id", authenticateToken, isAdmin, movieController.deleteMovie);
+
+
 
 module.exports = router;
