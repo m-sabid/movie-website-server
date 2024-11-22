@@ -12,6 +12,9 @@ router.get("/search", movieController.searchMovies);
 //
 //
 // Route to get all unique industries
+router.get("/release-years", movieController.getReleaseYears);
+
+// Get unique release years
 router.get("/industries", movieController.getIndustries);
 
 // Route to get recent movies (filtered by last 5 years)

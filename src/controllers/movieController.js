@@ -9,8 +9,7 @@ async function getAllMovies(req, res) {
       industry,
       genre,
       language,
-      releaseYearFrom,
-      releaseYearTo,
+      releaseYear,
       page = 1,
       limit = 12,
     } = req.query;
@@ -23,25 +22,19 @@ async function getAllMovies(req, res) {
     if (industry) query.industry = { $regex: new RegExp(industry, "i") }; // Case-insensitive
     if (genre) query.genre = { $regex: new RegExp(genre, "i") }; // Case-insensitive
     if (language) query.language = { $regex: new RegExp(language, "i") }; // Case-insensitive
- // Log for debugging purposes
- console.log(genre);
-    // Add release year filtering if provided
-    if (releaseYearFrom || releaseYearTo) {
-      query.releaseYear = {};
-      if (releaseYearFrom) query.releaseYear.$gte = parseInt(releaseYearFrom);
-      if (releaseYearTo) query.releaseYear.$lte = parseInt(releaseYearTo);
-    }
+    if (releaseYear) query.releaseYear = releaseYear; // Exact match for release year
 
-    // Fetch movies based on the query
+    // Count the total number of movies matching the filter
+    const totalMovies = await db.collection("movies").countDocuments(query);
+
+    // Use aggregation to apply filters and paginate
     const movies = await db
       .collection("movies")
-      .find(query)
-      .skip(skip)
-      .limit(Number(limit))
+      .find(query) // Apply filters without randomizing
+      .skip(skip) // Skip for pagination
+      .limit(Number(limit)) // Limit for pagination
       .toArray();
 
-    // Get the total number of movies for pagination
-    const totalMovies = await db.collection("movies").countDocuments(query);
     const totalPages = Math.ceil(totalMovies / limit);
 
     res.json({
@@ -59,9 +52,26 @@ async function getAllMovies(req, res) {
 }
 
 
+//  /
+//  /
+// Get unique release years
+async function getReleaseYears(req, res) {
+  try {
+    const db = getDB();
 
-//  /
-//  /
+    // Fetch all unique release years
+    const releaseYears = await db.collection("movies").distinct("releaseYear");
+
+    // Sort the years in ascending order (optional)
+    releaseYears.sort((a, b) => a - b);
+
+    res.json({ releaseYears });
+  } catch (err) {
+    console.error("Error fetching release years:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 // Get unique industries
 async function getIndustries(req, res) {
   try {
@@ -184,11 +194,24 @@ async function uploadImageToImgBB(image) {
 // Function to get a movie by ID
 async function getMovieById(req, res) {
   try {
-    const db = getDB();
+    const db = getDB(); // Your function to get the database instance
+    const { id } = req.params; // Extract ID from route params
+
+    // Validate the ID format
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid movie ID format" });
+    }
+
+    // Convert to ObjectId and query the database
     const movie = await db
       .collection("movies")
-      .findOne({ _id: new ObjectId(req.params.id) });
-    res.json(movie || { error: "Movie not found" });
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    res.json(movie);
   } catch (err) {
     console.error("Error fetching movie by ID:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -275,8 +298,6 @@ async function searchMovies(req, res) {
   }
 }
 
-
-
 module.exports = {
   getAllMovies,
   getRecentMovies,
@@ -285,6 +306,7 @@ module.exports = {
   updateMovie,
   deleteMovie,
   //
+  getReleaseYears,
   getIndustries,
   getSuggestedMovies,
   getMoviesForYou,
