@@ -1,6 +1,9 @@
 const { getDB } = require("../database");
 const { ObjectId } = require("mongodb");
 
+const { Parser } = require("json2csv");
+
+
 // Get all movies with pagination and category filtering
 async function getAllMovies(req, res) {
   try {
@@ -50,6 +53,65 @@ async function getAllMovies(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
+
+async function exportMoviesAsCSV(req, res) {
+  try {
+    const db = getDB();
+    const { industry, genre, language, releaseYear } = req.query;
+
+    // Build the filter query dynamically
+    const query = {};
+    if (industry) query.industry = { $regex: new RegExp(industry, "i") }; // Case-insensitive
+    if (genre) query.genre = { $in: [genre] }; // Match genre in array
+    if (language) query.language = { $in: [language] }; // Match language in array
+    if (releaseYear) query.releaseYear = releaseYear; // Exact match for release year
+
+    // Fetch all movies matching the filter
+    const movies = await db.collection("movies").find(query).toArray();
+
+    if (!movies.length) {
+      return res.status(404).json({ error: "No movies found for export." });
+    }
+
+    // Define the fields for the CSV
+    const fields = [
+      { label: "Movie Name", value: "movieName" },
+      { label: "Directed By", value: "directedBy" },
+      { label: "Release Year", value: "releaseYear" },
+      { label: "Language", value: (row) => row.language.join(", ") }, // Convert array to string
+      { label: "Genre", value: (row) => row.genre.join(", ") }, // Convert array to string
+      { label: "Industry", value: "industry" },
+      { label: "Country", value: "country" },
+      { label: "Star Cast", value: "starCast" },
+      { label: "IMDb Rating", value: "imdbRating" },
+      { label: "Poster URL", value: "poster" },
+      { label: "Download Link", value: "downloadLink" },
+      { label: "Screenshot URL", value: "screenShort" },
+      { label: "Plot", value: "plot" },
+      { label: "Status", value: "status" },
+    ];
+
+    // Create a CSV parser
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(movies);
+
+    // Set the headers to prompt download
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=movies_${Date.now()}.csv`
+    );
+
+    // Send the CSV content
+    res.status(200).end(csv);
+  } catch (err) {
+    console.error("Error exporting movies as CSV:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 
 
 //  /
@@ -312,4 +374,6 @@ module.exports = {
   getMoviesForYou,
   // Search
   searchMovies,
+
+  exportMoviesAsCSV
 };

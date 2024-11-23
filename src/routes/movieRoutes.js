@@ -9,6 +9,9 @@ router.get("/", movieController.getAllMovies);
 // Search
 router.get("/search", movieController.searchMovies);
 
+
+router.get("/export", movieController.exportMoviesAsCSV);
+
 //
 //
 // Route to get all unique industries
