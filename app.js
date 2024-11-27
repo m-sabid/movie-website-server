@@ -51,3 +51,5 @@ app.use("/language", languageRouter);
 // Global Settings Routes
 const globalSettingsRoutes = require("./src/routes/globalSettingsRoutes");
 app.use("/api", globalSettingsRoutes)
+
+// bug fixed
