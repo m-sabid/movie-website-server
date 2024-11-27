@@ -90,7 +90,6 @@ async function exportMoviesAsCSV(req, res) {
       { label: "Download Link", value: "downloadLink" },
       { label: "Screenshot URL", value: "screenShort" },
       { label: "Plot", value: "plot" },
-      { label: "Status", value: "status" },
     ];
 
     // Create a CSV parser

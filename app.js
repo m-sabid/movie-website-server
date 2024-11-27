@@ -31,7 +31,7 @@ connectDB()
 // Use authentication routes
 const authRoutes = require("./src/routes/authRoutes");
 app.use("/api/auth", authRoutes);
-  
+
 // Use the movie routes
 const movieRoutes = require("./src/routes/movieRoutes");
 app.use("/movies", movieRoutes);
@@ -44,7 +44,10 @@ app.use("/genre", genreRouter);
 const industryRouter = require("./src/routes/industryRouter");
 app.use("/industry", industryRouter);
 
-
 // Use the language routes
 const languageRouter = require("./src/routes/languageRouter");
 app.use("/language", languageRouter);
+
+// Global Settings Routes
+const globalSettingsRoutes = require("./src/routes/globalSettingsRoutes");
+app.use("/api", globalSettingsRoutes)
