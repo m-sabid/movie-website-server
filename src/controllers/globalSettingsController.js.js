@@ -34,30 +34,37 @@ const getGlobalSettings = async (req, res) => {
 // Save or update global settings
 const updateGlobalSettings = async (req, res) => {
   try {
+    // Step 1: Connect to the database and select the collection
     const db = getDB();
     const collection = db.collection("globalSettings");
-    
-    const { error, value } = globalSettingsSchema.validate(req.body);
-    
-    if (error) {
-      return res.status(400).json({ message: "Validation error", details: error.details });
-    }
 
-    
-    // Update the settings in the database
-    const updatedSettings = await collection.updateOne(
-      {}, // Assuming only one settings document
-      { $set: value },
-      { upsert: true }
+    // Step 2: Update or insert the global settings document
+    const result = await collection.updateOne(
+      {}, // Match any document, assuming only one settings document exists
+      { $set: req.body }, // Update the document with the incoming request body
+      { upsert: true } // Insert if no document exists
     );
-    
-    // Return updated settings
-    return res.status(200).json(updatedSettings);
+
+    // Step 3: Return the response with the update result
+    if (result.acknowledged) {
+      return res.status(200).json({
+        message: "Global settings updated successfully",
+        modifiedCount: result.modifiedCount,
+        upsertedId: result.upsertedId || null,
+      });
+    } else {
+      return res.status(500).json({
+        message: "Failed to update global settings",
+      });
+    }
   } catch (error) {
-    console.error("Error updating global settings:", error);
-    return res.status(500).json({ message: "Error updating global settings" });
+    console.error("Error in updateGlobalSettings:", error);
+    return res.status(500).json({
+      message: "An unexpected error occurred while updating global settings",
+    });
   }
 };
+
 
 // Reset settings to default values
 const resetGlobalSettings = async (req, res) => {
