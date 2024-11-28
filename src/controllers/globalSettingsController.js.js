@@ -38,11 +38,11 @@ const updateGlobalSettings = async (req, res) => {
     const db = getDB();
     const collection = db.collection("globalSettings");
 
-    // Step 2: Update or insert the global settings document
+    // Step 2: Apply partial updates to the global settings document
     const result = await collection.updateOne(
       {}, // Match any document, assuming only one settings document exists
-      { $set: req.body }, // Update the document with the incoming request body
-      { upsert: true } // Insert if no document exists
+      { $set: req.body }, // Apply partial updates with the request body
+      { upsert: true } // Insert a new document if none exists
     );
 
     // Step 3: Return the response with the update result
@@ -64,6 +64,7 @@ const updateGlobalSettings = async (req, res) => {
     });
   }
 };
+
 
 
 // Reset settings to default values

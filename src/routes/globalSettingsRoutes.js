@@ -10,7 +10,7 @@ const {
 router.get("/", getGlobalSettings);
 
 // Route to update global settings
-router.put("/update", updateGlobalSettings);
+router.patch("/update", updateGlobalSettings);
 
 // Route to reset global settings to default
 router.post("/reset", resetGlobalSettings);
