@@ -7,12 +7,12 @@ const {
 } = require("../controllers/globalSettingsController.js");
 
 // Route to fetch current global settings
-router.get("/global-settings", getGlobalSettings);
+router.get("/", getGlobalSettings);
 
 // Route to update global settings
-router.put("/global-settings-update", updateGlobalSettings);
+router.put("/update", updateGlobalSettings);
 
 // Route to reset global settings to default
-router.post("/reset-global-settings", resetGlobalSettings);
+router.post("/reset", resetGlobalSettings);
 
 module.exports = router;
