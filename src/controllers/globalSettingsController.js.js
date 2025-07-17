@@ -1,5 +1,5 @@
 const { getDB } = require("../database"); // Assuming getDB connects to the MongoDB database
-const { globalSettingsSchema, defaultColors, defaultTypography } = require("../utils/globalSettingsSchema");
+const { defaultColors, defaultTypography } = require("../utils/globalSettingsSchema");
 
 // Fetch the current global settings
 const getGlobalSettings = async (req, res) => {

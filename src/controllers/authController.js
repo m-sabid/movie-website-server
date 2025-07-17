@@ -6,7 +6,7 @@ const { userSchema } = require("../utils/userSchema"); // Import the Joi user sc
 // Helper function to generate JWT token
 const generateToken = (user) => {
   return jwt.sign(
-    { userId: user._id, email: user.email },
+    { userId: user._id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "12h" }
   );
