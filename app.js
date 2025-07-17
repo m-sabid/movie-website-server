@@ -4,13 +4,15 @@ const { connectDB } = require("./src/database");
 require("dotenv").config(); // Load environment variables from .env file
 const cors = require("cors");
 
-const corsOptions = {
-  origin: "*",
-  credentials: true,
-  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-  optionSuccessStatus: 200,
-}; 
-app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({});
+  }
+  next();
+});
 
 // Middleware to parse incoming JSON data
 app.use(express.json());
@@ -35,23 +37,23 @@ app.use("/api/auth", authRoutes);
 
 // Use the movie routes
 const movieRoutes = require("./src/routes/movieRoutes");
-app.use("/movies", movieRoutes);
+app.use("/api/movies", movieRoutes);
 
 // Use the genre routes
 const genreRouter = require("./src/routes/genreRouter");
-app.use("/genre", genreRouter);
+app.use("/api/genre", genreRouter);
 
 // Use the industry routes
 const industryRouter = require("./src/routes/industryRouter");
-app.use("/industry", industryRouter);
+app.use("/api/industry", industryRouter);
 
 // Use the language routes
 const languageRouter = require("./src/routes/languageRouter");
-app.use("/language", languageRouter);
+app.use("/api/language", languageRouter);
 
 // Global Settings Routes
 const globalSettingsRoutes = require("./src/routes/globalSettingsRoutes");
-app.use("/global-settings", globalSettingsRoutes);
+app.use("/api/global-settings", globalSettingsRoutes);
 
 // User management routes
 const userRoutes = require("./src/routes/userRoutes");
